@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plagiarism Checker - Text Similarity</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .content-wrap {
+            flex: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="page-container">
+
+        <!-- Beautiful Header (Navigation Bar) START -->
+        <nav class="bg-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo/Brand Name -->
+                    <div class="flex-shrink-0">
+                        <a href="index.html" class="text-2xl font-extrabold text-indigo-600 tracking-wider">
+                            PLAGI<span class="text-red-500">A.I.</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Navigation Links -->
+                    <div class="hidden md:flex space-x-4">
+                        <a href="text_check.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150">Text Check</a>
+                        <a href="pdf_compare.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150">PDF Compare</a>
+                        <a href="code_check.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150">Code Check</a>
+                        <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition duration-150 shadow-md">Get Started</button>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-btn" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Panel (Hidden by default) -->
+            <div class="md:hidden hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="text_check.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">Text Check</a>
+                    <a href="pdf_compare.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">PDF Compare</a>
+                    <a href="code_check.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">Code Check</a>
+                    <button class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg text-base font-medium hover:bg-indigo-700 transition duration-150 mt-2">Get Started</button>
+                </div>
+            </div>
+        </nav>
+        <!-- Beautiful Header (Navigation Bar) END -->
+        
+        <div class="content-wrap p-4">
+            <div class="max-w-4xl mx-auto py-8">
+                <header class="text-center mb-10">
+                    <h1 class="text-4xl font-extrabold text-gray-800">Text & Document Checker</h1>
+                    <p class="text-lg text-gray-500 mt-2">Paste your text or upload a file to check against the web and AI databases.</p>
+                </header>
+
+                <main class="bg-white p-6 md:p-10 rounded-xl shadow-2xl border-t-4 border-indigo-500">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Enter Content</h2>
+                    <div id="error-message" class="text-red-600 font-medium mb-4"></div>
+
+                    <!-- Text Area -->
+                    <div class="mb-6">
+                        <label for="text-input" class="block text-sm font-medium text-gray-700 mb-2">Paste Text Here</label>
+                        <textarea id="text-input" rows="10" placeholder="Start typing or paste your content..." 
+                            class="w-full p-4 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 resize-y"></textarea>
+                    </div>
+
+                    <div class="text-center text-gray-500 font-semibold mb-6">--- OR ---</div>
+                    
+                    <!-- File Upload -->
+                    <div class="space-y-4 p-4 border border-gray-200 rounded-lg">
+                        <label for="text-file" class="block text-sm font-medium text-gray-700">Upload Document</label>
+                        <input type="file" id="text-file" accept=".doc,.docx,.pdf,.txt" class="block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-indigo-50 file:text-indigo-700
+                            hover:file:bg-indigo-100"/>
+                        <p class="text-xs text-gray-500 mt-1">Supported formats: .docx, .pdf, .txt. File upload overrides pasted text.</p>
+                    </div>
+
+                    <button id="check-text-btn" class="mt-8 w-full py-3 px-4 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        Run Plagiarism Check
+                    </button>
+                </main>
+            </div>
+        </div>
+
+        <!-- Beautiful Footer START -->
+        <footer class="bg-gray-800 text-white mt-12">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold mb-4 text-indigo-400">PLAGIA.I.</h3>
+                        <p class="text-sm text-gray-400">Advanced tools for ensuring content originality and integrity.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Tools</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="text_check.html" class="text-gray-400 hover:text-white transition duration-150">Text Similarity</a></li>
+                            <li><a href="pdf_compare.html" class="text-gray-400 hover:text-white transition duration-150">PDF Comparison</a></li>
+                            <li><a href="code_check.html" class="text-gray-400 hover:text-white transition duration-150">Code Check</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Support</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">FAQ</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">Help Center</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Legal</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">Privacy Policy</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-8 pt-6 border-t border-gray-700 text-center">
+                    <p class="text-sm text-gray-400">&copy; 2024 Plagia.I. All rights reserved. | Built with modern web standards.</p>
+                </div>
+            </div>
+        </footer>
+        <!-- Beautiful Footer END -->
+    </div>
+
+    <!-- JavaScript for Mobile Menu and Text Logic -->
+    <script>
+        // Feature: Mobile Menu Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+
+        // The specific text check logic will be housed in script.js (not included here, but assumed to run)
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

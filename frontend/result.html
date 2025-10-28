@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Plagiarism Checker - Results</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ADDED STYLES FOR CONSISTENCY */
+    body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+    .page-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    .content-wrap {
+        flex: 1;
+    }
+    /* USER'S ORIGINAL STYLES */
+    .score-box {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+      color: #ef4444; /* red-500 */
+    }
+    .hl-text .mark-exact { background-color: #fecaca; padding: 2px 4px; border-radius: 4px; }
+    .hl-text .mark-paraphrase { background-color: #fef3c7; padding: 2px 4px; border-radius: 4px; }
+    .hl-text .mark-common { background-color: #dbeafe; padding: 2px 4px; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-gray-50">
+    <div class="page-container">
+
+        <!-- Beautiful Header (Navigation Bar) START -->
+        <nav class="bg-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo/Brand Name -->
+                    <div class="flex-shrink-0">
+                        <a href="index.html" class="text-2xl font-extrabold text-indigo-600 tracking-wider">
+                            PLAGI<span class="text-red-500">A.I.</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Navigation Links -->
+                    <div class="hidden md:flex space-x-4">
+                        <a href="text_check.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150">Text Check</a>
+                        <a href="pdf_compare.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150">PDF Compare</a>
+                        <a href="code_check.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150">Code Check</a>
+                        <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition duration-150 shadow-md">Get Started</button>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-btn" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Panel (Hidden by default) -->
+            <div class="md:hidden hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="text_check.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">Text Check</a>
+                    <a href="pdf_compare.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">PDF Compare</a>
+                    <a href="code_check.html" class="text-gray-600 hover:bg-gray-50 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">Code Check</a>
+                    <button class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg text-base font-medium hover:bg-indigo-700 transition duration-150 mt-2">Get Started</button>
+                </div>
+            </div>
+        </nav>
+        <!-- Beautiful Header (Navigation Bar) END -->
+
+        <!-- Content Wrapper START -->
+        <div class="content-wrap p-4">
+            <div class="max-w-6xl mx-auto"> <!-- Original content integrated into this container -->
+
+                <!-- ORIGINAL CONTENT START -->
+                <header class="text-center mb-10">
+                    <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Analysis Complete!</h1>
+                    <p class="text-gray-500 text-lg">Review the similarity and AI generation breakdown below.</p>
+                </header>
+
+                <main>
+                    <!-- Summary Row -->
+                    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-xl shadow-lg border-b-4 border-red-500 text-center col-span-1 md:col-span-1">
+                            <h2 class="text-lg font-semibold text-gray-600 mb-2">Overall Similarity Score</h2>
+                            <div id="similarity-box" class="score-box text-red-500">--%</div>
+                            <p class="text-sm text-gray-500 mt-2">Against web and uploaded sources.</p>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg border-b-4 border-indigo-500 col-span-1 md:col-span-2">
+                            <h2 class="text-lg font-semibold text-gray-600 mb-4 text-center">AI vs. Human Content Breakdown</h2>
+                            <div class="h-64 flex justify-center items-center">
+                                <canvas id="aiHumanChart" class="max-h-full max-w-full"></canvas>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Results Row -->
+                    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        
+                        <!-- Sources -->
+                        <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-300">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.814a4 4 0 00-.056-.056l-1.423 1.423.473.473m-.953.953l1.423 1.423.473.473m-.953.953a4 4 0 000-5.656l-4-4a4 4 0 00-5.656 0"></path></svg>
+                                Matched Sources
+                            </h3>
+                            <ul id="sources-list" class="space-y-4"></ul>
+                        </div>
+
+                        <!-- Highlights -->
+                        <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-300">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-6 h-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2v5h-2v-5c-1.657 0-3-.895-3-2s1.343-2 3-2z"></path></svg>
+                                Matching Text Snippets
+                            </h3>
+                            <div id="highlights-list" class="space-y-4"></div>
+                        </div>
+                    </section>
+
+                    <!-- Suggestions -->
+                    <section class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500 mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Suggestions to Improve
+                        </h3>
+                        <ul id="suggestion-list" class="list-disc list-inside space-y-2 text-gray-700"></ul>
+                    </section>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col md:flex-row justify-between gap-4">
+                        <a href="index.html" class="flex-1 text-center py-3 px-6 bg-gray-200 text-gray-800 font-bold rounded-lg shadow-md hover:bg-gray-300 transition duration-150">
+                            🔙 Start New Check
+                        </a>
+                        <button id="download-pdf-report" class="flex-1 py-3 px-6 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+                            ⬇️ Download PDF Report
+                        </button> 
+                    </div>
+                </main>
+                <!-- ORIGINAL CONTENT END -->
+            </div>
+        </div>
+        <!-- Content Wrapper END -->
+
+
+        <!-- Beautiful Footer START -->
+        <footer class="bg-gray-800 text-white mt-12">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold mb-4 text-indigo-400">PLAGIA.I.</h3>
+                        <p class="text-sm text-gray-400">Advanced tools for ensuring content originality and integrity.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Tools</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="text_check.html" class="text-gray-400 hover:text-white transition duration-150">Text Similarity</a></li>
+                            <li><a href="pdf_compare.html" class="text-gray-400 hover:text-white transition duration-150">PDF Comparison</a></li>
+                            <li><a href="code_check.html" class="text-gray-400 hover:text-white transition duration-150">Code Check</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Support</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">FAQ</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">Help Center</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Legal</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">Privacy Policy</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-150">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-8 pt-6 border-t border-gray-700 text-center">
+                    <p class="text-sm text-gray-400">&copy; 2024 Plagia.I. All rights reserved. | Built with modern web standards.</p>
+                </div>
+            </div>
+        </footer>
+        <!-- Beautiful Footer END -->
+    </div>
+
+    <!-- JavaScript for Results Logic -->
+    <script>
+        // Feature: Mobile Menu Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+
+        // Helper functions (same as original, but using template literals for clarity)
+        function escapeHtml(s) {
+          if (!s) return "";
+          const map = { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' };
+          return s.replace(/[&<>"']/g, m => map[m]);
+        }
+        function shortenUrl(u) {
+          try {
+            const url = new URL(u);
+            return url.hostname + (url.pathname.length > 1 ? url.pathname.slice(0, 20) + "..." : "");
+          } catch (e) {
+            return u;
+          }
+        }
+        
+        // Main result loading logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultData = JSON.parse(localStorage.getItem("plagiarismResult")) || {
+              ai: 50, human: 50, similarity: 50,
+              sources: [{ url: "https://example.com/article1", excerpt: "Sample source excerpt." }],
+              highlighted_sentences: [{ text: "This is a sample text from article one.", source: "https://example.com/article1", type: "exact" }],
+              suggestions: ["Review sentences for better paraphrasing."]
+            };
+
+            // Fill similarity box
+            document.getElementById("similarity-box").innerText = resultData.similarity + "%";
+            
+            // Change color based on similarity
+            const simBox = document.getElementById("similarity-box");
+            if (resultData.similarity > 70) {
+                simBox.classList.remove('text-red-500');
+                simBox.classList.add('text-red-700');
+            } else if (resultData.similarity > 30) {
+                simBox.classList.remove('text-red-500');
+                simBox.classList.add('text-orange-500');
+            } else {
+                simBox.classList.remove('text-red-500');
+                simBox.classList.add('text-green-500');
+            }
+
+
+            // Build AI vs Human chart
+            const ctx = document.getElementById("aiHumanChart").getContext("2d");
+            new Chart(ctx, {
+              type: "doughnut",
+              data: {
+                labels: ["AI-generated", "Human-written"],
+                datasets: [{
+                  data: [resultData.ai, resultData.human],
+                  backgroundColor: ["#3b82f6", "#10b981"], // blue-500, emerald-500
+                  borderColor: ["#fff", "#fff"],
+                  borderWidth: 3
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { 
+                    legend: { position: "bottom", labels: { usePointStyle: true } },
+                    tooltip: { callbacks: { label: function(context) { return `${context.label}: ${context.raw}%`; } } }
+                }
+              }
+            });
+
+            // Render web sources
+            const sourcesList = document.getElementById("sources-list");
+            sourcesList.innerHTML = "";
+            if (resultData.sources && resultData.sources.length) {
+              resultData.sources.forEach(s => {
+                const li = document.createElement("li");
+                li.className = "p-3 bg-gray-50 rounded-lg shadow-sm";
+                li.innerHTML = `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 font-semibold truncate block">${s.url}</a>
+                                <p class="text-sm text-gray-500 mt-1 line-clamp-2">${escapeHtml(s.excerpt || 'No excerpt available.')}</p>`;
+                sourcesList.appendChild(li);
+              });
+            } else {
+              sourcesList.innerHTML = "<p class='text-gray-500'>No external sources were matched against the content.</p>";
+            }
+
+            // Render highlighted sentences
+            const hlList = document.getElementById("highlights-list");
+            hlList.innerHTML = "";
+            if (resultData.highlighted_sentences && resultData.highlighted_sentences.length) {
+              resultData.highlighted_sentences.forEach((h, i) => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "highlight-item border-b border-gray-100 pb-3";
+                
+                let cls = '';
+                let typeText = '';
+
+                switch (h.type) {
+                    case "exact": cls = "mark-exact"; typeText = "Exact Match"; break;
+                    case "paraphrase": cls = "mark-paraphrase"; typeText = "Paraphrased"; break;
+                    case "common": cls = "mark-common"; typeText = "Common Phrase"; break;
+                    default: cls = "mark-common"; typeText = "Match";
+                }
+                
+                wrapper.innerHTML = `
+                  <div class="highlight-meta text-sm text-gray-500 flex items-center mb-1">
+                    <span class="font-semibold text-gray-700 mr-2">#${i+1}</span>
+                    <span class="bg-gray-100 text-xs px-2 py-0.5 rounded-full mr-2">${typeText}</span>
+                    Source: <a class="hl-source text-indigo-500 hover:underline ml-1" href="${h.source}" target="_blank" rel="noopener noreferrer">${shortenUrl(h.source)}</a>
+                  </div>
+                  <p class="hl-text text-gray-800 leading-relaxed"><span class="${cls}">${escapeHtml(h.text)}</span></p>
+                `;
+                hlList.appendChild(wrapper);
+              });
+            } else {
+              hlList.innerHTML = "<p class='text-gray-500'>Congratulations! No matching sentences were detected.</p>";
+            }
+
+            // Render suggestions
+            const sugList = document.getElementById("suggestion-list");
+            sugList.innerHTML = "";
+            const suggestions = resultData.suggestions || [
+              "Paraphrase the highlighted sentences in your own words.",
+              "Add a citation for each direct quote.",
+              "Integrate more original analysis or unique examples.",
+              "Check the flow and coherence of your arguments."
+            ];
+            suggestions.forEach(s => {
+              const li = document.createElement("li");
+              li.textContent = s;
+              sugList.appendChild(li);
+            });
+
+            // Download PDF button
+            document.getElementById("download-pdf-report").addEventListener("click", () => {
+              // This assumes your backend provides a working endpoint for PDF generation
+              window.location.href = '/api/download_report'; 
+            });
+        });
+    </script>
+</body>
+</html>
